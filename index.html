@@ -167,25 +167,4 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 </body>
-</html>  }
-  
-  // Handle window resize
-  $(window).on("resize", function() {
-    $flipbook.turn("size", Math.min(900, $(window).width() - 40), 600);
-  });
-  
-  // Keyboard navigation
-  $(document).on("keydown", function(e) {
-    if(e.key === "ArrowLeft") {
-      $flipbook.turn("previous");
-    } else if(e.key === "ArrowRight") {
-      $flipbook.turn("next");
-    }
-  });
-  
-  // Update total pages display
-  $("#total-pages").text(totalPages);
-});
-</script>
-</body>
 </html>
