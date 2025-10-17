@@ -6,48 +6,119 @@
 <title>Brownie & Grayson</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-  #flipbook { width:100%; max-width:900px; height:600px; margin:30px auto; }
-  #flipbook .page { display:flex; align-items:center; justify-content:center; border:1px solid #ccc; background:#fff; }
-  #flipbook .page img { max-width:100%; max-height:100%; object-fit:contain; }
+  body { background: #f0f0f0; }
+  .flipbook-container { text-align: center; margin: 30px auto; }
+  #flipbook { 
+    width: 100%; 
+    max-width: 900px; 
+    height: 600px; 
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  #flipbook .page {
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #flipbook .page img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    user-select: none;
+  }
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .page-info {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+  }
 </style>
 </head>
 <body>
-<div class="container text-center">
-  <h1 class="my-3">Brownie & Grayson Flipbook</h1>
-  <div id="flipbook"></div>
-  <div class="my-3 d-flex justify-content-center gap-2">
-    <button id="prev" class="btn btn-primary">Prev</button>
-    <button id="next" class="btn btn-primary">Next</button>
+<div class="flipbook-container">
+  <h1 class="mb-4">Brownie & Grayson Flipbook</h1>
+  <div id="flipbook">
+    <!-- Pages akan di-generate oleh JavaScript -->
+  </div>
+  <div class="controls">
+    <button id="prev" class="btn btn-primary">← Prev</button>
+    <button id="next" class="btn btn-primary">Next →</button>
+  </div>
+  <div class="page-info">
+    <span id="page-num">Page 1</span> of <span id="total-pages">26</span>
   </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+$(document).ready(function() {
   const folder = "img/";
-  const $flip = $("#flipbook");
-  const totalPages = 26; // ganti sesuai jumlah halaman
-  const images = [];
-  for(let i=0; i<totalPages; i++){
-    const num = i.toString().padStart(4,"0"); // 0 -> "0000", 1 -> "0001"
-    images.push(num + ".jpg");
+  const totalPages = 26;
+  const $flipbook = $("#flipbook");
+  
+  // Generate semua halaman
+  for(let i = 0; i < totalPages; i++){
+    const num = i.toString().padStart(4, "0");
+    const imgPath = folder + num + ".jpg";
+    $flipbook.append(`<div class="page"><img src="${imgPath}" alt="Page ${i+1}"></div>`);
   }
-
-  // Generate halaman flipbook
-  images.forEach((f,i)=>{
-    $flip.append(`<div class="page"><img src="${folder+f}" alt="hal ${i+1}"></div>`);
-  });
-
-  // Init turn.js
-  $flip.turn({
-    width: Math.min(900, window.innerWidth - 40),
+  
+  // Initialize turn.js
+  $flipbook.turn({
+    width: Math.min(900, $(window).width() - 40),
     height: 600,
-    autoCenter: true
+    autoCenter: true,
+    gradients: true,
+    elevation: 50,
+    pages: totalPages
   });
-
-  $("#prev").on("click", ()=> $flip.turn("previous"));
-  $("#next").on("click", ()=> $flip.turn("next"));
+  
+  // Event listener untuk page change
+  $flipbook.on("turned", function(event, page, view) {
+    updatePageInfo(page);
+  });
+  
+  // Button events
+  $("#prev").on("click", function() {
+    $flipbook.turn("previous");
+  });
+  
+  $("#next").on("click", function() {
+    $flipbook.turn("next");
+  });
+  
+  // Update page info
+  function updatePageInfo(page) {
+    $("#page-num").text("Page " + page);
+  }
+  
+  // Handle window resize
+  $(window).on("resize", function() {
+    $flipbook.turn("size", Math.min(900, $(window).width() - 40), 600);
+  });
+  
+  // Keyboard navigation
+  $(document).on("keydown", function(e) {
+    if(e.key === "ArrowLeft") {
+      $flipbook.turn("previous");
+    } else if(e.key === "ArrowRight") {
+      $flipbook.turn("next");
+    }
+  });
+  
+  // Update total pages display
+  $("#total-pages").text(totalPages);
 });
 </script>
 </body>
